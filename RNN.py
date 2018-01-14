@@ -9,24 +9,19 @@ def split_list(l, wanted_parts=1):
     return [ l[i*length // wanted_parts: (i+1)*length // wanted_parts]
              for i in range(wanted_parts) ]
 
-
 def shuffle_list(l):
     ind = np.random.permutation(range(len(l)))
     return [l[i] for i in ind]
-
 
 def trim(x, n):
     n_trim = x.shape[0] - x.shape[0]/n * n
     return x[:-n_trim] if n_trim > 0 else x
 
-
 def roll(x, n_roll=0):
     return np.roll(x, shift=n_roll, axis=0)
 
-
 def reshape3(x, dim2):
     return x.reshape(x.shape[0]/dim2, dim2, x.shape[-1])
-
 
 def make_batches(ktrain, batch_size, shuffle=False):
     def make_batch_indices(L, batch_size):
@@ -45,7 +40,6 @@ def make_batches(ktrain, batch_size, shuffle=False):
                          np.array(ktrain[1][[i for i in b], :]))))
 
     return [[i[0] for i in kbtrain], [i[1] for i in kbtrain]]
-
 
 class _LSTM(chainer.Chain):
     def __init__(self, n_input, n_mid, n_output):
@@ -70,7 +64,6 @@ class _LSTM(chainer.Chain):
         self.loss = F.mean_squared_error(t, self.y)
         return self
 
-
 class LSTM:
     def __init__(self, n_input, n_output, n_mid=10, lr=1e-03, w_decay=0, n_back=1, batch_size=1, drop=0., n_epochs=10, toplot = False):
         self.model = _LSTM(n_input, n_mid, n_output)
@@ -87,7 +80,6 @@ class LSTM:
         self.no_improve = 0
         self.min_val_loss = 1e+06
         self.toplot = toplot
-
 
     def fit(self, xtr, ttr, xv=None, tv=None):
         if (xv is not None) & (tv is not None): xv, tv = trim(xv, self.params.n_back), trim(tv, self.params.n_back)
@@ -151,7 +143,6 @@ class LSTM:
             y_hat = np.swapaxes(np.array(y_hat), 0, 1)
             return loss, y_hat
 
-
     def predict(self, xts):
         x = trim(xts, self.params.n_back)
         r = xts[x.shape[0]:, :]
@@ -169,7 +160,6 @@ class LSTM:
             y_hat = np.append(y_hat, model_copy.y.data, axis=0)
         return y_hat
 
-
     def plot_fit(self, t, y_hat):
         plt.clf()
         t = t[:500 if t.shape[0]>500 else t.shape[0], 1362]
@@ -181,7 +171,6 @@ class LSTM:
         plt.legend()
         plt.title('Loss: ' + str(self.tloss[-1][-1]))
         plt.pause(0.5)
-
 
     def print_report(self, report='train'):
         if report == 'train':

@@ -4,17 +4,14 @@ import chainer.functions as F
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def split_list(l, wanted_parts=1):
     length = len(l)
     return [ l[i*length // wanted_parts: (i+1)*length // wanted_parts]
              for i in range(wanted_parts) ]
 
-
 def shuffle_list(l):
     ind = np.random.permutation(range(len(l)))
     return [l[i] for i in ind]
-
 
 def make_batches(x, t, batch_size, shuffle=False):
     def make_batch_indices(L, batch_size):
@@ -27,7 +24,6 @@ def make_batches(x, t, batch_size, shuffle=False):
     [tb.append(t[i, :]) for i in batch_indices]
     return [xb, tb]
 
-
 class _MLP(chainer.Chain):
     def __init__(self, n_input, n_mid, n_output):
         super(_MLP, self).__init__(
@@ -37,7 +33,7 @@ class _MLP(chainer.Chain):
             b2=L.BatchNormalization(n_mid),
             l3=L.Linear(n_mid, n_output),
         )
-
+        
     def forward(self, x, train=True, drop=0.):
         self.h1 = F.dropout(self.b1(F.elu(self.l1(x))), drop, train)
         self.h2 = F.dropout(self.b2(F.elu(self.l2(self.h1))), drop, train)
@@ -48,7 +44,6 @@ class _MLP(chainer.Chain):
         self.forward(x, train, drop)
         self.loss = F.mean_squared_error(t, self.y)
         return self
-
 
 class MLP:
     def __init__(self, n_input, n_output, n_mid=10, lr=1e-03, w_decay=0,
@@ -67,7 +62,6 @@ class MLP:
         self.no_improve = 0
         self.min_val_loss = 1e+06
         self.toplot = toplot
-
 
     def fit(self, xtr, ttr, xv=None, tv=None):
         if self.toplot: plt.ion()
@@ -106,12 +100,10 @@ class MLP:
         if self.toplot: plt.close()
         if self.toplot: plt.ioff()
 
-
     def predict(self, xts):
         model_copy = self.model.copy()
         model_copy.forward(xts, train=False, drop=0.)
         return model_copy.y.data
-
 
     def plot_fit(self, t, y_hat):
         plt.clf()
@@ -120,7 +112,6 @@ class MLP:
         plt.legend()
         plt.title('Loss: ' + str(self.tloss[-1][-1]))
         plt.pause(0.5)
-
 
     def print_report(self, report='train'):
         if report == 'train':
